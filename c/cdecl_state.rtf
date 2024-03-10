@@ -1,0 +1,164 @@
+{\rtf1\ansi\ansicpg936\cocoartf2639
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fmodern\fcharset0 Courier;\f1\froman\fcharset0 Times-Roman;\f2\fswiss\fcharset0 ArialMT;
+}
+{\colortbl;\red255\green255\blue255;\red255\green255\blue255;\red0\green0\blue0;\red234\green255\blue255;
+}
+{\*\expandedcolortbl;;\cssrgb\c100000\c100000\c100000;\cssrgb\c0\c0\c0;\cssrgb\c93333\c100000\c100000;
+}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs20 \cf0 \cb2 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec3 #include <stdio.h>  \strokec0 \
+\strokec3 #include <string.h>  \strokec0 \
+\strokec3 #include <ctype.h>  \strokec0 \
+\strokec3 #define MAXTOKENS 100  \strokec0 \
+\strokec3 #define MAXTOKENLEN 64  \strokec0 \
+\strokec3 enum type_tag \{ IDENTIFIER, QUALIFIER, TYPE \};  \strokec0 \
+\strokec3 struct token \{ \strokec0 \
+\strokec3     char type;  \strokec0 \
+\strokec3     char string[MAXTOKENLEN];  \strokec0 \
+\strokec3 \};  \strokec0 \
+\strokec3 int top = -1;  \strokec0 \
+\strokec3 /* holds all the tokens before first identifier */  \strokec0 \
+\strokec3 struct token stack[MAXTOKENS];  \strokec0 \
+\strokec3 /* holds the token just read */  \strokec0 \
+\strokec3 struct token this;  \strokec0 \
+\strokec3 #define pop stack[top--]  \strokec0 \
+\strokec3 #define push(s) stack[++top]=s  \strokec0 \
+\strokec3 enum type_tag  \strokec0 \
+\strokec3 classify_string(void)\
+\pard\pardeftab720\partightenfactor0
+\cf0 /* figure out the identifier type */  \cb1 \strokec0 \
+\cb2 \strokec3 \{ \cb1 \strokec0 \
+\cb2 \strokec3     char *s = this.string;  \cb1 \strokec0 \
+\cb2 \strokec3     if (!strcmp(s, "const")) \{ \cb1 \strokec0 \
+\cb2 \strokec3         strcpy(s, "read-only");  \cb1 \strokec0 \
+\cb2 \strokec3         return QUALIFIER;  \cb1 \strokec0 \
+\cb2 \strokec3     \}  \cb1 \strokec0 \
+\cb2 \strokec3     if (!strcmp(s, "volatile")) return QUALIFIER;  \cb1 \strokec0 \
+\cb2 \strokec3     if (!strcmp(s, "void")) return TYPE;  \cb1 \strokec0 \
+\cb2 \strokec3     if (!strcmp(s, "char")) return TYPE;  \cb1 \strokec0 \
+\cb2 \strokec3     if (!strcmp(s, "signed")) return TYPE;  \cb1 \strokec0 \
+\cb2 \strokec3     if (!strcmp(s, "unsigned")) return TYPE;  \cb1 \strokec0 \
+\cb2 \strokec3     if (!strcmp(s, "short")) return TYPE;  \cb1 \strokec0 \
+\cb2 \strokec3     if (!strcmp(s, "int")) return TYPE;  \cb1 \strokec0 \
+\cb2 \strokec3     if (!strcmp(s, "long")) return TYPE;  \cb1 \strokec0 \
+\cb2 \strokec3     if (!strcmp(s, "float")) return TYPE;  \cb1 \strokec0 \
+\cb2 \strokec3     if (!strcmp(s, "double")) return TYPE;  \cb1 \strokec0 \
+\cb2 \strokec3     if (!strcmp(s, "struct")) return TYPE;  \cb1 \strokec0 \
+\cb2 \strokec3     if (!strcmp(s, "union")) return TYPE;  \cb1 \strokec0 \
+\cb2 \strokec3     if (!strcmp(s, "enum")) return TYPE;  \cb1 \strokec0 \
+\cb2 \strokec3     return IDENTIFIER;  \cb1 \strokec0 \
+\cb2 \strokec3 \}  \cb1 \strokec0 \
+\cb2 \strokec3 void gettoken(void)  \cb1 \strokec0 \
+\cb2 \strokec3 \{             /* read next token into "this" */  \cb1 \strokec0 \
+\cb2 \strokec3     char *p = this.string;  \cb1 \strokec0 \
+\cb2 \strokec3     /* read past any spaces */  \cb1 \strokec0 \
+\cb2 \strokec3     while ((*p = getchar()) == ' ');  \cb1 \strokec0 \
+\cb2 \strokec3     if (isalnum(*p)) \{ \cb1 \strokec0 \
+\cb2 \strokec3         /* it starts with A-Z,1-9 read in identifier */  \cb1 \strokec0 \
+\cb2 \strokec3         while (isalnum(*++p = getchar()));  \cb1 \strokec0 \
+\cb2 \strokec3         ungetc(*p, stdin);  \cb1 \strokec0 \
+\cb2 \strokec3         *p = '\\0';  \cb1 \strokec0 \
+\cb2 \strokec3         this.type = classify_string();  \cb1 \strokec0 \
+\cb2 \strokec3         return;  \cb1 \strokec0 \
+\cb2 \strokec3     \}  \cb1 \strokec0 \
+\cb2 \strokec3     this.string[1] = '\\0';  \cb1 \strokec0 \
+\cb2 \strokec3     this.type = *p;  \cb1 \strokec0 \
+\cb2 \strokec3     return;  \cb1 \strokec0 \
+\cb2 \strokec3 \}  \cb1 \strokec0 \
+\cb2 \strokec3 void initialize(),  \cb1 \strokec0 \
+\cb2 \strokec3  get_array(), get_params(), get_lparen(), \cb1 \strokec0 \
+\cb2 \strokec3 get_ptr_part(), get_type();  \cb1 \strokec0 \
+\cb2 \strokec3 void (*nextstate)(void) = initialize;  \
+int main()  \strokec0 \
+\strokec3 /* Cdecl written as a finite state machine */  \strokec0 \
+\strokec3 \{ \strokec0 \
+\strokec3     /* transition through the states, until the pointer \strokec0 \
+\strokec3 is null */  \strokec0 \
+\strokec3     while (nextstate != NULL)  \strokec0 \
+\strokec3         (*nextstate)();  \strokec0 \
+\strokec3     return 0;  \strokec0 \
+\strokec3 \}  \strokec0 \
+\strokec3 void initialize()  \strokec0 \
+\strokec3 \{ \strokec0 \
+\strokec3     gettoken();  \strokec0 \
+\strokec3     while (this.type != IDENTIFIER) \{ \strokec0 \
+\strokec3         push(this);  \strokec0 \
+\strokec3         gettoken();  \strokec0 \
+\strokec3     \}  \strokec0 \
+\strokec3     printf("%s is ", this.string);  \strokec0 \
+\strokec3     gettoken();  \strokec0 \
+\strokec3     nextstate = get_array;  \strokec0 \
+\strokec3 \}  \strokec0 \
+\strokec3 void get_array()  \strokec0 \
+\strokec3 \{ \strokec0 \
+\strokec3     nextstate = get_params;  \strokec0 \
+\strokec3     while (this.type == '[') \{ \strokec0 \
+\strokec3         printf("array ");  \strokec0 \
+\strokec3         gettoken();/* a number or ']' */  \strokec0 \
+\strokec3         if (isdigit(this.string[0])) \{ \strokec0 \
+\strokec3             printf("0..%d ", atoi(this.string) - 1);  \strokec0 \
+\strokec3             gettoken();/* read the ']' */  \strokec0 \
+\strokec3         \}  \strokec0 \
+\strokec3         gettoken();/* read next past the ']' */  \strokec0 \
+\strokec3         printf("of ");  \strokec0 \
+\strokec3         nextstate = get_lparen;  \strokec0 \
+\strokec3     \}  \strokec0 \
+\strokec3 \}  \strokec0 \
+\strokec3 void get_params()  \strokec0 \
+\strokec3 \{ \strokec0 \
+\strokec3     nextstate = get_lparen;  \strokec0 \
+\strokec3     if (this.type == '(') \{ \strokec0 \
+\strokec3         while (this.type != ')') \{ \strokec0 \
+\strokec3             gettoken();  \strokec0 \
+\strokec3         \}  \strokec0 \
+\strokec3         gettoken();  \strokec0 \
+\strokec3         printf("function returning "); \strokec0 \
+\strokec3     \}  \strokec0 \
+\strokec3 \}  \strokec0 \
+\strokec3 void get_lparen()  \strokec0 \
+\strokec3 \{ \strokec0 \
+\strokec3     nextstate = get_ptr_part;  \strokec0 \
+\strokec3     if (top >= 0) \{ \strokec0 \
+\strokec3         if (stack[top].type == '(') \{ \strokec0 \
+\strokec3             pop;  \strokec0 \
+\strokec3             gettoken();/* read past ')' */  \strokec0 \
+\strokec3             nextstate = get_array;  \strokec0 \
+\strokec3         \}  \strokec0 \
+\strokec3     \}  \strokec0 \
+\strokec3 \}  \strokec0 \
+\strokec3 void get_ptr_part()  \strokec0 \
+\strokec3 \{ \strokec0 \
+\strokec3     nextstate = get_type;  \strokec0 \
+\strokec3     if (stack[top].type == '*') \{ \strokec0 \
+\strokec3         printf("pointer to ");  \strokec0 \
+\strokec3         pop;  \strokec0 \
+\strokec3         nextstate = get_lparen;  \strokec0 \
+\strokec3     \} else if (stack[top].type == QUALIFIER) \{ \strokec0 \
+\strokec3         printf("%s ", pop.string);  \strokec0 \
+\strokec3         nextstate = get_lparen;  \strokec0 \
+\strokec3     \}  \strokec0 \
+\strokec3 \}  \strokec0 \
+\strokec3 void get_type()  \strokec0 \
+\strokec3 \{ \strokec0 \
+\strokec3     nextstate = NULL;  \strokec0 \
+\strokec3     /* process tokens that we stacked while reading to \strokec0 \
+\strokec3 identifier */  \strokec0 \
+\strokec3     while (top >= 0) \{ \strokec0 \
+\strokec3         printf("%s ", pop.string);  \strokec0 \
+\strokec3     \}  \strokec0 \
+\strokec3     printf("\\n");  \strokec0 \
+\strokec3 \} \strokec0 \
+\cb1 \
+
+\f1\fs24 \strokec3 \
+
+\f2\fs32 \cf4 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs20 \cf0 \cb2 \strokec0 \
+}
